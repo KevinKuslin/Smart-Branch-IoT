@@ -1,54 +1,72 @@
+
 #include <Arduino.h>
-#include "ceiling_fan_model_float.h"
+#include <DHTesp.h>
 
-// Number of features expected by the model
-const int FEATURE_COUNT = 17;
+// ================= PIN CONFIGURATION =================
+#define DHT_PIN       15
+#define PIR_PIN       27
+#define LDR_PIN       32
+#define VOC_PIN       33
+#define SOUND_PIN     34
+#define PM25_PIN      35
+#define CO2_PIN       36
+#define FCU_PIN       39
 
-// Reference input from Google Colab
-// Feature order must remain identical to Python.
-float test_features[FEATURE_COUNT] = {
-    20.0f,          // 0: VOC
-    47.5499992f,    // 1: Sound pressure level
-    74.7343369f,    // 2: Relative humidity
-    27.8033333f,    // 3: Air temperature
-    0.0f,           // 4: Illuminance
-    4.73333311f,    // 5: PM2.5
-    448.666656f,    // 6: CO2
-    0.0f,           // 7: Occupant presence
-    0.0f,           // 8: Occupant count
-    -0.806444604f,  // 9: Hour sin
-    -0.591309648f,  // 10: Hour cos
-    -0.433883739f,  // 11: Day of week sin
-    -0.900968868f,  // 12: Day of week cos
-    0.0f,           // 13: Admin office
-    1.0f,           // 14: Lecture room
-    0.0f,           // 15: Research office
-    0.0f            // 16: Student library
-};
+DHTesp dhtSensor;
 
+// ================= SETUP =================
 void setup() {
-    Serial.begin(115200);
-    delay(1000);
+  Serial.begin(115200);
+  delay(1000);
 
-    Serial.println();
-    Serial.println("================================");
-    Serial.println("Smart Branch ML Inference Test");
-    Serial.println("================================");
+  dhtSensor.setup(DHT_PIN, DHTesp::DHT22);
 
-    // Run the converted Random Forest
-    float prediction = ceiling_fan_model_float_predict(
-        test_features,
-        FEATURE_COUNT
-    );
+  pinMode(PIR_PIN, INPUT);
 
-    Serial.println("Inference completed!");
+  analogReadResolution(12);
 
-    Serial.print("Predicted ceiling fan energy: ");
-    Serial.println(prediction, 10);
-
-    Serial.println("================================");
+  Serial.println();
+  Serial.println("==================================");
+  Serial.println(" SMART BRANCH SENSOR DIAGNOSTICS");
+  Serial.println("==================================");
 }
 
+// ================= LOOP =================
 void loop() {
-    // No repeated inference for this initial test.
+
+  // 1. DHT22
+  TempAndHumidity climate = dhtSensor.getTempAndHumidity();
+
+  Serial.println("\n--- ENVIRONMENTAL SENSORS ---");
+
+  if (dhtSensor.getStatus() == DHTesp::ERROR_NONE) {
+    Serial.print("Temperature : ");
+    Serial.print(climate.temperature, 2);
+    Serial.println(" C");
+    Serial.print("Humidity    : "); 
+    Serial.print(climate.humidity, 2); 
+    Serial.println("%"); 
+  } else {
+    Serial.println("DHT22 ERROR : " + String(dhtSensor.getStatusString()));
+  }
+
+  // 2. PIR Motion Sensor
+  int motion = digitalRead(PIR_PIN);
+
+  Serial.println("--- MOTION SENSOR ---");
+  Serial.println("Motion      : %s" + String(motion == HIGH ? "DETECTED" : "NOT DETECTED"));
+
+  // 3. Analog Sensors
+  Serial.println("--- ANALOG SENSORS ---");
+
+  Serial.println("LDR: " + String(analogRead(LDR_PIN)));
+  Serial.println("VOC: " + String(analogRead(VOC_PIN)));
+  Serial.println("Sound: " + String(analogRead(SOUND_PIN)));
+  Serial.println("PM2.5: " + String(analogRead(PM25_PIN)));
+  Serial.println("CO2: " + String(analogRead(CO2_PIN)));
+  Serial.println("FCU Fan: " + String(analogRead(FCU_PIN)));
+
+  Serial.println("\n==================================");
+
+  delay(2500);
 }

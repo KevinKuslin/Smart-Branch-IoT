@@ -29,7 +29,13 @@
       "rotate": 180,
       "attrs": {}
     },
-    { "type": "wokwi-dht22", "id": "dht1", "top": -134.1, "left": 177, "attrs": {} },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht1",
+      "top": -134.1,
+      "left": 177,
+      "attrs": { "temperature": "24", "humidity": "40" }
+    },
     {
       "type": "wokwi-pir-motion-sensor",
       "id": "pir1",
@@ -129,7 +135,6 @@
     [ "ldr1:AO", "bb2:29t.a", "green", [ "v38.4", "h-18.5", "v76.8" ] ],
     [ "pot5:VCC", "bb2:bp.1", "red", [ "v0" ] ],
     [ "pot5:SIG", "bb2:3b.j", "green", [ "v0" ] ],
-    [ "bb2:7t.e", "esp:4", "green", [ "v9.6", "h-96", "v-326.4", "h547.2", "v384" ] ],
     [ "bb2:21t.e", "esp:27", "blue", [ "v9.6", "h134.4", "v19.2" ] ],
     [ "bb2:29t.e", "esp:32", "green", [ "v0" ] ],
     [ "bb2:3b.f", "esp:33", "limegreen", [ "v-9.6", "h326.4", "v-19.2" ] ],
@@ -161,7 +166,8 @@
       "esp:5V",
       "red",
       [ "v38.4", "h-67.2", "v-220.8", "h422.4", "v508.8", "h-163.2", "v-48" ]
-    ]
+    ],
+    [ "bb2:7t.e", "esp:15", "green", [ "h-105.6", "v-364.8", "h537.6" ] ]
   ],
   "dependencies": {}
 }
